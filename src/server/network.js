@@ -24,6 +24,7 @@
 // * https://datprotocol.github.io/how-dat-works/#exchanging-data
 // * https://ssbc.github.io/scuttlebutt-protocol-guide
 // * https://www.w3.org/TR/activitypub/#server-to-server-interactions
+// * https://github.com/arj03/ssb-browser-core
 // * https://docs.rs/libp2p-kad/0.15.0/libp2p_kad/index.html
 
 const discovery = require('dns-discovery');
