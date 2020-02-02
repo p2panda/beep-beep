@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>beep-beep</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      input {
+        min-width: 700px;
+      }
+
+      ul {
+        padding: 0;
+        list-style: none;
+      }
+
+      hr {
+        border: 0;
+        border-top: 2px solid #f00;
+      }
+
+      .chat {
+        height: 300px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>beep-beep</h1>
+    <hr>
+    <ul>
+      <li>
+        <label for="key">Key:</label>
+        <input type="text" id="key" readonly></li>
+      <li>
+        <label for="username">Username:</label>
+        <input type="text" id="username">
+        <button type="submit" id="usernameSubmit">Update</button>
+      </li>
+    </ul>
+    <hr>
+    <ul class="chat" id="chat"></ul>
+    <hr>
+    <input type="text" id="message">
+    <button type="submit" id="messageSubmit">Send</button>
+    <script src="index.js"></script>
+  </body>
+</html>

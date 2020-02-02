@@ -1,0 +1,16 @@
+{
+  "name": "beep-beep",
+  "version": "0.1.0",
+  "description": "Fictional p2p protocol",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server/index.js"
+  },
+  "author": "adzialocha",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "dns-discovery": "^6.2.3",
+    "express": "^4.17.1",
+    "isomorphic-fetch": "^2.2.1"
+  }
+}
