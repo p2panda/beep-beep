@@ -1,3 +1,31 @@
+// To proof this basic system we only use a very naive
+// replication method and a local-network discovery
+// strategy via mDNS.
+//
+// All of this does not take any security into
+// consideration, like verifying signatures, limiting
+// requests and protecting against DDoS attacks,
+// transport encryption, invalid data schemas and so on.
+//
+// SSB has something called "invite codes" for giving
+// clients permission to host their data on a node. There
+// could be node implementations which only replicate
+// their data with explicitly named nodes which this
+// instance followed (as in the fediverse), or limit
+// the number of clients to only a few, or do something
+// similar as SSB with their "invite codes".
+//
+// Nodes should also be able to be interested in
+// different topics, handle different sorts of data
+// schemas depending on their purposes.
+//
+// Interesting projects:
+// * https://github.com/AljoschaMeyer/bamboo-point2point
+// * https://datprotocol.github.io/how-dat-works/#exchanging-data
+// * https://ssbc.github.io/scuttlebutt-protocol-guide
+// * https://www.w3.org/TR/activitypub/#server-to-server-interactions
+// * https://docs.rs/libp2p-kad/0.15.0/libp2p_kad/index.html
+
 const discovery = require('dns-discovery');
 const fetch = require('isomorphic-fetch');
 
@@ -11,12 +39,15 @@ class Network {
     this.discovery = discovery();
 
     this.peers = {};
+    this.counter = 0;
+
     this.lockedPeers = {};
     this.lockedKeys = {};
-    this.counter = 0;
   }
 
-  start(port) {
+  findPeers(port) {
+    // Find other peers interested in the same thing as
+    // us on your local network
     this.discovery.on('peer', (name, peer) => {
       if (name !== DISCOVERY_NAME) {
         return;
@@ -45,67 +76,39 @@ class Network {
       console.log(`Found peer #${id} (host=${host}, port=${port})`);
     });
 
+    // Announce that we exist!
     this.discovery.announce(DISCOVERY_NAME, port);
   }
 
-  updateAll() {
+  replicateWithAllPeers() {
+    // Go through all peers and see if we can get any
+    // new data from them we don't have yet
     return Object.keys(this.peers)
       .reduce((acc, id) => {
-        return acc.then(this.replicateAll(this.peers[id]));
+        return acc.then(this.replicateWithPeer(this.peers[id]));
       }, Promise.resolve())
       .then(() => {
         this.lockedKeys = {};
       });
   }
 
-  replicate(id, key, from, to) {
-    const { host, port } = this.peers[id];
-    const log = this.database.get(key);
-
-    const makeRequest = seqNum => {
-      if (!(id in this.peers)) {
-        return Promise.resolve();
-      }
-
-      return fetch(`http://${host}:${port}/api/logs/${key}/${seqNum}`)
-        .then(response => {
-          return response.json();
-        })
-        .then(({ timestamp, message }) => {
-          const { id, type, text } = message;
-          log.append(id, type, text, seqNum, timestamp);
-        })
-        .catch(error => {
-          console.error(`Could not fetch message ${seqNum} from %${key}`);
-          return Promise.resolve();
-        });
-    };
-
-    const tasks = [];
-
-    for (let i = from; i < to; i += 1) {
-      tasks.push(i);
-    }
-
-    return tasks
-      .reduce((acc, seqNum) => {
-        return acc.then(makeRequest(seqNum));
-      }, Promise.resolve())
-      .then(() => {
-        console.log(`Replicated ${tasks.length} messages from %${key}`);
-      })
-      .catch(() => {
-        return Promise.resolve();
-      });
-  }
-
-  replicateAll({ id, host, port, isLocked }) {
+  // This replication strategy is realtively simple: Get
+  // all logs from all known peers and copy everything we
+  // don't have yet into our database. We can do this a
+  // little bit more efficiently by only copying the
+  // messages we don't have yet.
+  //
+  // Surely this is not the best way to do this but it
+  // serves the purpose for now.
+  replicateWithPeer({ id, host, port, isLocked }) {
     if (id in this.lockedPeers) {
       return;
     }
 
     this.lockedPeers[id] = true;
 
+    // We use the same HTTP API as the clients for server
+    // to server communication
     fetch(`http://${host}:${port}/api/logs`)
       .then(response => {
         return response.json();
@@ -162,7 +165,7 @@ class Network {
             this.lockedKeys[request.key] = true;
 
             const { key, from, to } = request;
-            return this.replicate(id, key, from, to);
+            return this.replicateLog(id, key, from, to);
           })
         );
       })
@@ -172,6 +175,47 @@ class Network {
       })
       .finally(() => {
         delete this.lockedPeers[id];
+      });
+  }
+
+  replicateLog(id, key, from, to) {
+    const { host, port } = this.peers[id];
+    const log = this.database.get(key);
+
+    const makeRequest = seqNum => {
+      if (!(id in this.peers)) {
+        return Promise.resolve();
+      }
+
+      return fetch(`http://${host}:${port}/api/logs/${key}/${seqNum}`)
+        .then(response => {
+          return response.json();
+        })
+        .then(({ timestamp, message }) => {
+          const { id, type, text } = message;
+          log.append(id, type, text, seqNum, timestamp);
+        })
+        .catch(error => {
+          console.error(`Could not fetch message ${seqNum} from %${key}`);
+          return Promise.resolve();
+        });
+    };
+
+    const tasks = [];
+
+    for (let i = from; i < to; i += 1) {
+      tasks.push(i);
+    }
+
+    return tasks
+      .reduce((acc, seqNum) => {
+        return acc.then(makeRequest(seqNum));
+      }, Promise.resolve())
+      .then(() => {
+        console.log(`Replicated ${tasks.length} messages from %${key}`);
+      })
+      .catch(() => {
+        return Promise.resolve();
       });
   }
 }

@@ -1,3 +1,31 @@
+// This is a very basic client example for this sort
+// of system. The cool thing is: The keypair lives in
+// the local storage of the browser. You could also think
+// about more secure storage solutions in other client
+// implementations.
+//
+// One could also easily "burn" accounts and create new
+// ones for privacy reasons.
+//
+// With this architecture clients are relatively light
+// as they don't require to take care of all the other
+// parts of the protocol (replication, discovery, logs).
+//
+// Clients sign messages locally on their devices / in
+// the browser with the stored keypair and send this to
+// the server where the message gets verified and stored.
+//
+// We could also implement an E2EE message system where
+// messages can't be read by neither node owners or other
+// clients (see SSB private box 2 implementation) by
+// unpacking them in the client itself. This can be
+// interesting for private message types like private
+// events or private group chats.
+//
+// * Interesting projects:
+// * https://github.com/CirclesUBI/circles-baby-phoenix
+// * https://github.com/ssbc/box2-spec
+
 const ENTER_KEYNAME = 'Enter';
 
 const ANONYMOUS_USER = '<anon>';
@@ -24,6 +52,13 @@ const state = {
   users: {}
 };
 
+// Aha! In this example there is not even any real crypto
+// happening! I was too lazy to add the actual generation
+// of a asymmetric keypair but well, this also serves its
+// purpose. Imagine this would be ed25519 here which
+// allows us to generate an individual keypair and an
+// hashed public address on every client without the need
+// of a server.
 function generateFakeHash(len = 64) {
   const buffer = new Uint8Array((len || 40) / 2);
   window.crypto.getRandomValues(buffer);
@@ -36,6 +71,9 @@ function generateFakeHash(len = 64) {
   );
 }
 
+// We store this fake "key" in the local storage of
+// the browser. If you come back it will still know
+// "who you are"
 function initializeKey() {
   if (!window.localStorage.getItem(STORAGE_KEY)) {
     const key = generateFakeHash();
@@ -91,7 +129,7 @@ function updateUsernames() {
 
 function updateMessages() {
   return findAll(TYPE_MESSAGES).then(data => {
-    // Clear chat view
+    // Clear chat view. Not elegant:
     elements.chat.innerHTML = '';
 
     // Add all messages to chat

@@ -1,0 +1,22 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+input {
+  min-width: 700px;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+hr {
+  border: 0;
+  border-top: 2px solid #f00;
+}
+
+.chat {
+  height: 300px;
+  overflow: auto;
+}
