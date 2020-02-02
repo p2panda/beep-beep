@@ -1,7 +1,7 @@
 beep-beep
 ===
 
-This is a naive and simplistic proof-of-concept implementation of a p2p chat which allows a hybrid of federated and fully distributed nodes in the same network inspired by [bamboo](https://github.com/AljoschaMeyer/bamboo), [Secure Scuttlebutt](https://scuttlebutt.nz/) and [ActivityPub](https://activitypub.rocks/). Also it allows us to have light clients which can purely stay in the browser without any proxy / tunneling, while still owning their keys.
+This is a naive and simplistic proof-of-concept implementation of a p2p system which allows a hybrid of federated and fully distributed nodes in the same network inspired by [bamboo](https://github.com/AljoschaMeyer/bamboo), [Secure Scuttlebutt](https://scuttlebutt.nz/) and [ActivityPub](https://activitypub.rocks/). Also it allows us to have light clients which can purely stay in the browser without any proxy / tunneling, while still owning their keys.
 
 There are plenty of comments about this idea in the code. Start [here](https://github.com/adzialocha/beep-beep/blob/master/src/server/index.js)! Don't be disappointed if you see some "fake" methods in the code, I didn't want to fall down into the rabbit hole of actually implementing this, this really serves only as a (working) concept and base for further discussions and specifications.
 
