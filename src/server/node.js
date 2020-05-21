@@ -7,9 +7,9 @@ const UPDATE_INTERVAL = 500;
 
 class Node {
   constructor() {
-    // The Node holds everything we need: a database
-    // to store logs, a database view to query data from these logs and a networking methods to find other
-    // peers and to get their logs.
+    // The Node holds everything we need: a database to store logs, a database
+    // view to query data from these logs and a networking methods to find
+    // other peers and to get their logs.
     this.database = new Database();
     this.network = new Network(this.database);
     this.view = new View(this.database);
@@ -19,17 +19,15 @@ class Node {
     // Start the process of finding other peers ..
     this.network.findPeers(port);
 
-    // .. and frequently check if we can download data
-    // from them + update our views on the current
-    // database state
+    // .. and frequently check if we can download data from them + update our
+    // views on the current database state
     setInterval(() => {
       this.network.replicateWithAllPeers();
       this.view.updateAll();
     }, UPDATE_INTERVAL);
   }
 
-  // The node exposes some convenience methods to query
-  // the database ..
+  // The node exposes some convenience methods to query the database ..
   find(type, id) {
     return this.view.find(type, id);
   }

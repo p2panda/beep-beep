@@ -1,6 +1,5 @@
-// This should be an append-only-log but right now it
-// is a very lazy implementation without any verification
-// of whatsoever.
+// This should be an append-only-log but right now it is a very lazy
+// implementation without any verification of whatsoever.
 //
 // Interesting projects:
 // * https://github.com/AljoschaMeyer/bamboo
@@ -13,9 +12,8 @@ class Log {
   }
 
   append(id, type, text, seqNum, timestamp = Date.now()) {
-    // We don't really do any validations or checks
-    // against any message schema here and the current
-    // format is realtively poor, but it serves its
+    // We don't really do any validations or checks against any message schema
+    // here and the current format is realtively poor, but it serves its
     // purpose for this demonstration:
     const message = {
       id,

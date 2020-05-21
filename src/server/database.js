@@ -1,6 +1,5 @@
-// This database is a simple in-memory key/value storage
-// keeping all logs in place. It could basically be
-// anything ..? PostgreSQL?
+// This database is a simple in-memory key/value storage keeping all logs in
+// place. It could basically be anything ..? PostgreSQL?
 
 class Database {
   constructor() {
