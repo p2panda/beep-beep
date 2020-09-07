@@ -28,3 +28,7 @@ Please note that this example only runs in your local network!
 
 * https://github.com/p2panda/beep-beep-server
 * https://github.com/p2panda/beep-beep-client
+
+## License
+
+GNU Affero General Public License v3.0 `AGPL-3.0`
